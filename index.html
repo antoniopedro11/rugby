@@ -3,38 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Placar de Rugby Pro</title>
+    <title>Placar de Rugby Advanced</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #0f172a;
             --surface: #1e293b;
+            --surface-light: #334155;
             --primary: #3b82f6;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
-            --team-a: #ef4444; /* Vermelho */
-            --team-b: #10b981; /* Verde */
+            --team-a: #ef4444; 
+            --team-b: #10b981; 
             --yellow-card: #eab308;
             --red-card: #dc2626;
         }
+        
+        * { box-sizing: border-box; }
+
         body {
             font-family: 'Inter', -apple-system, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
+            padding: 2rem;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             min-height: 100vh;
         }
-        .container {
+        
+        .layout-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 2rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .main-container {
             background-color: var(--surface);
             padding: 2.5rem;
             border-radius: 2rem;
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
             text-align: center;
-            width: 100%;
-            max-width: 800px;
         }
         
         /* Header and Timer */
@@ -50,66 +62,81 @@
             letter-spacing: -1px;
             color: var(--primary);
             font-size: 2.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
+        .period-btn {
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .period-btn:hover { background: rgba(255,255,255,0.15); }
+        
         .timer-container {
-            background: rgba(0,0,0,0.3);
+            background: rgba(0,0,0,0.4);
             padding: 1rem 1.5rem;
             border-radius: 1rem;
             display: inline-flex;
             align-items: center;
             gap: 1.5rem;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.05);
         }
         .time-display {
             font-size: 3.5rem;
             font-weight: 900;
             font-variant-numeric: tabular-nums;
-            letter-spacing: 2px;
             color: #fff;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
             min-width: 160px;
         }
-        .timer-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
+        .timer-controls { display: flex; flex-direction: column; gap: 0.5rem; }
         .timer-controls button {
             background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.05);
-            color: #fff;
-            width: 40px;
-            height: 40px;
+            border: none; color: #fff;
+            width: 36px; height: 36px;
             border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.2rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            cursor: pointer; font-size: 1rem;
             transition: all 0.2s;
         }
-        .timer-controls button:hover {
-            background: rgba(255,255,255,0.2);
-            transform: scale(1.1);
-        }
+        .timer-controls button:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
         
         /* Scoreboard */
         .scoreboard {
             display: flex;
             justify-content: space-between;
-            align-items: stretch;
-            margin-bottom: 3rem;
+            align-items: center;
+            margin-bottom: 2rem;
             background: rgba(0,0,0,0.2);
             padding: 2rem;
             border-radius: 1.5rem;
             position: relative;
         }
-        .team {
-            flex: 1;
+        .team { flex: 1; display: flex; flex-direction: column; align-items: center; }
+        
+        .team-header {
             display: flex;
-            flex-direction: column;
             align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
         }
+        .color-picker {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: transparent;
+        }
+        .color-picker::-webkit-color-swatch-wrapper { padding: 0; }
+        .color-picker::-webkit-color-swatch { border: 2px solid rgba(255,255,255,0.2); border-radius: 5px; }
+
         .team-name-input {
             background: transparent;
             border: none;
@@ -119,305 +146,448 @@
             font-size: 1.5rem;
             font-weight: 800;
             text-align: center;
-            margin-bottom: 0.5rem;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            width: 80%;
+            width: 180px;
             padding: 0.25rem;
-            transition: border-color 0.2s, background-color 0.2s;
-            border-radius: 0.5rem 0.5rem 0 0;
+            transition: border-color 0.2s;
         }
-        .team-name-input:focus {
-            outline: none;
-            border-bottom-color: var(--primary);
-            background: rgba(255,255,255,0.05);
-        }
+        .team-name-input:focus { outline: none; border-bottom-color: var(--primary); }
         .team-a .team-name-input { color: var(--team-a); }
         .team-b .team-name-input { color: var(--team-b); }
         
         .score {
-            font-size: 6.5rem;
+            font-size: 7rem;
             font-weight: 900;
             line-height: 1;
-            font-variant-numeric: tabular-nums;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             margin: 1rem 0;
         }
-        .divider {
-            font-size: 2.5rem;
-            color: rgba(255,255,255,0.1);
-            font-weight: 900;
-            display: flex;
-            align-items: center;
-        }
+        .team-a .score { color: var(--team-a); }
+        .team-b .score { color: var(--team-b); }
+        
+        .divider { font-size: 2.5rem; color: rgba(255,255,255,0.1); font-weight: 900; }
         
         /* Cards Tracker */
         .cards-tracker {
-            display: flex;
-            gap: 1rem;
-            margin-top: 0.5rem;
-            background: rgba(255,255,255,0.03);
-            padding: 0.5rem 1rem;
-            border-radius: 1rem;
+            display: flex; gap: 1rem; background: rgba(255,255,255,0.03);
+            padding: 0.5rem 1rem; border-radius: 1rem;
         }
         .card-btn {
-            background: transparent;
-            border: none;
-            padding: 0.2rem 0.5rem;
-            color: var(--text-muted);
-            font-weight: 700;
-            font-size: 1.2rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            background: transparent; border: none; padding: 0.2rem 0.5rem;
+            color: #fff; font-weight: 700; font-size: 1.2rem;
+            cursor: pointer; display: flex; align-items: center; gap: 0.5rem;
             transition: transform 0.2s;
         }
-        .card-btn:hover {
-            transform: scale(1.1);
-        }
+        .card-btn:hover { transform: scale(1.1); }
         .card-icon {
-            width: 1.2rem;
-            height: 1.5rem;
-            border-radius: 3px;
-            display: inline-block;
+            width: 1.2rem; height: 1.6rem; border-radius: 3px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
         .yellow-card .card-icon { background-color: var(--yellow-card); }
         .red-card .card-icon { background-color: var(--red-card); }
-        .card-count { color: #fff; font-family: 'Inter', sans-serif;}
 
         /* Scoring Controls */
-        .controls {
-            display: flex;
-            gap: 2.5rem;
-        }
-        .team-controls {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
+        .controls { display: flex; gap: 2.5rem; }
+        .team-controls { flex: 1; display: flex; flex-direction: column; gap: 0.8rem; }
         .score-btn {
-            background-color: rgba(255,255,255,0.03);
+            background-color: rgba(255,255,255,0.04);
             border: 1px solid rgba(255,255,255,0.1);
             color: var(--text-main);
-            padding: 1rem 1.25rem;
-            border-radius: 1rem;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
+            padding: 1rem; border-radius: 1rem;
+            font-size: 1.1rem; font-weight: 600;
+            cursor: pointer; display: flex; justify-content: space-between;
             transition: all 0.2s ease;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
-        .score-btn:hover {
-            transform: translateY(-3px);
-            background-color: rgba(255,255,255,0.08);
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
-        }
-        .score-btn:active {
-            transform: translateY(0);
-        }
-        .team-a .score-btn:hover { border-color: var(--team-a); box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); }
-        .team-b .score-btn:hover { border-color: var(--team-b); box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
+        .score-btn:hover { background-color: rgba(255,255,255,0.08); transform: translateY(-2px); }
+        .team-a .score-btn:hover { border-color: var(--team-a); }
+        .team-b .score-btn:hover { border-color: var(--team-b); }
+        
         .pts {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            background: rgba(0,0,0,0.3);
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.5rem;
+            color: var(--text-muted); font-size: 0.9rem;
+            background: rgba(0,0,0,0.3); padding: 0.25rem 0.5rem; border-radius: 0.5rem;
         }
-        .team-a .score-btn:hover .pts { color: var(--team-a); }
-        .team-b .score-btn:hover .pts { color: var(--team-b); }
+        .btn-correct { opacity: 0.6; padding: 0.6rem 1rem; font-size: 0.9rem; }
 
-        .btn-correct {
-            opacity: 0.6;
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
+        /* Sidebar - Event Log */
+        .sidebar {
+            background-color: var(--surface);
+            border-radius: 2rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            max-height: 800px;
         }
-        .btn-correct:hover {
-            opacity: 1;
-            border-color: #64748b !important;
-            box-shadow: none !important;
+        .sidebar h3 {
+            margin-top: 0; color: #fff; font-size: 1.2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 1rem;
+        }
+        .log-list {
+            flex: 1; overflow-y: auto;
+            list-style: none; padding: 0; margin: 0 0 1rem 0;
+            display: flex; flex-direction: column; gap: 0.5rem;
+        }
+        .log-item {
+            background: rgba(0,0,0,0.2);
+            padding: 0.8rem; border-radius: 0.5rem;
+            font-size: 0.9rem; display: flex; flex-direction: column; gap: 0.3rem;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+        
+        .log-time { color: var(--text-muted); font-size: 0.8rem; font-weight: bold; }
+        .log-desc { color: #fff; line-height: 1.4; }
+        .log-icon { margin-right: 5px; }
+        
+        .sidebar-actions {
+            display: flex; flex-direction: column; gap: 0.5rem;
+            border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;
+        }
+        .action-btn {
+            background: var(--primary); color: #fff;
+            border: none; padding: 0.8rem; border-radius: 0.5rem;
+            font-weight: bold; cursor: pointer; transition: background 0.2s;
+        }
+        .action-btn:hover { background: #2563eb; }
+        .action-btn.danger { background: transparent; border: 1px solid var(--red-card); color: var(--red-card); }
+        .action-btn.danger:hover { background: rgba(220, 38, 38, 0.1); }
+
+        @media (max-width: 900px) {
+            .layout-wrapper { grid-template-columns: 1fr; }
+            .sidebar { max-height: 400px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header / Timer -->
-        <div class="header">
-            <h1>🏉 Placar Pro</h1>
+    <div class="layout-wrapper">
+        <!-- Main Scoreboard -->
+        <div class="main-container">
+            <div class="header">
+                <h1>
+                    🏉 Placar Pro
+                    <button class="period-btn" id="btn-period" onclick="togglePeriod()">1º Tempo</button>
+                </h1>
+                
+                <div class="timer-container">
+                    <div class="time-display" id="time-display">00:00</div>
+                    <div class="timer-controls">
+                        <button onclick="startTimer()" title="Iniciar" id="btn-start">▶</button>
+                        <button onclick="pauseTimer()" title="Pausar">⏸</button>
+                        <button onclick="resetTimer()" title="Zerar Relógio">⏹</button>
+                    </div>
+                </div>
+            </div>
             
-            <div class="timer-container">
-                <div class="time-display" id="time-display">00:00</div>
-                <div class="timer-controls">
-                    <button onclick="startTimer()" title="Iniciar/Retomar" id="btn-start">▶</button>
-                    <button onclick="pauseTimer()" title="Pausar">⏸</button>
-                    <button onclick="resetTimer()" title="Zerar / Reiniciar">⏹</button>
+            <div class="scoreboard">
+                <div class="team team-a">
+                    <div class="team-header">
+                        <input type="color" class="color-picker" id="color-a" value="#ef4444" onchange="updateColor('a', this.value)">
+                        <input type="text" class="team-name-input" id="name-a" value="Local" onchange="updateName('a', this.value)">
+                    </div>
+                    <div class="score" id="score-a">0</div>
+                    
+                    <div class="cards-tracker">
+                        <button class="card-btn yellow-card" onclick="addCard('a', 'yellow', 'Amarelo')">
+                            <span class="card-icon"></span> <span id="yc-a">0</span>
+                        </button>
+                        <button class="card-btn red-card" onclick="addCard('a', 'red', 'Vermelho')">
+                            <span class="card-icon"></span> <span id="rc-a">0</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="divider">X</div>
+                
+                <div class="team team-b">
+                    <div class="team-header">
+                        <input type="color" class="color-picker" id="color-b" value="#10b981" onchange="updateColor('b', this.value)">
+                        <input type="text" class="team-name-input" id="name-b" value="Visitante" onchange="updateName('b', this.value)">
+                    </div>
+                    <div class="score" id="score-b">0</div>
+                    
+                    <div class="cards-tracker">
+                        <button class="card-btn yellow-card" onclick="addCard('b', 'yellow', 'Amarelo')">
+                            <span class="card-icon"></span> <span id="yc-b">0</span>
+                        </button>
+                        <button class="card-btn red-card" onclick="addCard('b', 'red', 'Vermelho')">
+                            <span class="card-icon"></span> <span id="rc-b">0</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <!-- Controle Time A -->
+                <div class="team-controls team-a">
+                    <button class="score-btn" onclick="addScore('a', 5, 'Try')">
+                        <span>Try</span> <span class="pts">+5</span>
+                    </button>
+                    <button class="score-btn" onclick="addScore('a', 2, 'Conversão')">
+                        <span>Conversão</span> <span class="pts">+2</span>
+                    </button>
+                    <button class="score-btn" onclick="addScore('a', 3, 'Pênalti/Drop')">
+                        <span>Pênalti / Drop</span> <span class="pts">+3</span>
+                    </button>
+                    <button class="score-btn btn-correct" onclick="addScore('a', -1, 'Correção de Placar')">
+                        <span>Corrigir erro</span> <span class="pts">-1</span>
+                    </button>
+                </div>
+                <!-- Controle Time B -->
+                <div class="team-controls team-b">
+                    <button class="score-btn" onclick="addScore('b', 5, 'Try')">
+                        <span>Try</span> <span class="pts">+5</span>
+                    </button>
+                    <button class="score-btn" onclick="addScore('b', 2, 'Conversão')">
+                        <span>Conversão</span> <span class="pts">+2</span>
+                    </button>
+                    <button class="score-btn" onclick="addScore('b', 3, 'Pênalti/Drop')">
+                        <span>Pênalti / Drop</span> <span class="pts">+3</span>
+                    </button>
+                    <button class="score-btn btn-correct" onclick="addScore('b', -1, 'Correção de Placar')">
+                        <span>Corrigir erro</span> <span class="pts">-1</span>
+                    </button>
                 </div>
             </div>
         </div>
         
-        <!-- Scoreboard -->
-        <div class="scoreboard">
-            <div class="team team-a">
-                <input type="text" class="team-name-input" value="Local" title="Clique para editar o nome">
-                <div class="score" id="score-a">0</div>
-                
-                <div class="cards-tracker">
-                    <button class="card-btn yellow-card" onclick="addCard('a', 'yellow')" title="Cartão Amarelo">
-                        <span class="card-icon"></span> <span class="card-count" id="yc-a">0</span>
-                    </button>
-                    <button class="card-btn red-card" onclick="addCard('a', 'red')" title="Cartão Vermelho">
-                        <span class="card-icon"></span> <span class="card-count" id="rc-a">0</span>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="divider">X</div>
-            
-            <div class="team team-b">
-                <input type="text" class="team-name-input" value="Visitante" title="Clique para editar o nome">
-                <div class="score" id="score-b">0</div>
-                
-                <div class="cards-tracker">
-                    <button class="card-btn yellow-card" onclick="addCard('b', 'yellow')" title="Cartão Amarelo">
-                        <span class="card-icon"></span> <span class="card-count" id="yc-b">0</span>
-                    </button>
-                    <button class="card-btn red-card" onclick="addCard('b', 'red')" title="Cartão Vermelho">
-                        <span class="card-icon"></span> <span class="card-count" id="rc-b">0</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Scoring Controls -->
-        <div class="controls">
-            <!-- Team A -->
-            <div class="team-controls team-a">
-                <button class="score-btn" onclick="addScore('a', 5)">
-                    <span>Try</span> <span class="pts">+5</span>
-                </button>
-                <button class="score-btn" onclick="addScore('a', 2)">
-                    <span>Conversão</span> <span class="pts">+2</span>
-                </button>
-                <button class="score-btn" onclick="addScore('a', 3)">
-                    <span>Pênalti / Drop</span> <span class="pts">+3</span>
-                </button>
-                <button class="score-btn btn-correct" onclick="addScore('a', -1)">
-                    <span>Corrigir ponto</span> <span class="pts">-1</span>
-                </button>
-            </div>
-            
-            <!-- Team B -->
-            <div class="team-controls team-b">
-                <button class="score-btn" onclick="addScore('b', 5)">
-                    <span>Try</span> <span class="pts">+5</span>
-                </button>
-                <button class="score-btn" onclick="addScore('b', 2)">
-                    <span>Conversão</span> <span class="pts">+2</span>
-                </button>
-                <button class="score-btn" onclick="addScore('b', 3)">
-                    <span>Pênalti / Drop</span> <span class="pts">+3</span>
-                </button>
-                <button class="score-btn btn-correct" onclick="addScore('b', -1)">
-                    <span>Corrigir ponto</span> <span class="pts">-1</span>
-                </button>
+        <!-- Sidebar Logic -->
+        <div class="sidebar">
+            <h3>📜 Eventos da Partida</h3>
+            <ul class="log-list" id="log-list">
+                <!-- Logs are appended here -->
+            </ul>
+            <div class="sidebar-actions">
+                <button class="action-btn" onclick="exportSummary()">📤 Exportar Resultado</button>
+                <button class="action-btn danger" onclick="resetMatch()">⚠️ Apagar Jogo Todo</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Score Logic
-        let state = {
+        // ---------------------------------------------------------
+        // Audio Synthesizer (Whistle & Blips)
+        // ---------------------------------------------------------
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playWhistle(type = 'whistle') {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            if (type === 'whistle') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(2000, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.4);
+                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.4);
+            } else if (type === 'blip') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.1);
+            }
+        }
+
+        // ---------------------------------------------------------
+        // State Management & LocalStorage
+        // ---------------------------------------------------------
+        const defaultState = {
             scores: { a: 0, b: 0 },
             cards: {
                 a: { yellow: 0, red: 0 },
                 b: { yellow: 0, red: 0 }
-            }
+            },
+            names: { a: 'Local', b: 'Visitante' },
+            colors: { a: '#ef4444', b: '#10b981' },
+            timer: 0, // seconds elapsed
+            period: 1, // 1 or 2
+            logs: []
         };
-
-        function addScore(team, points) {
-            // Prevent going below 0
-            state.scores[team] = Math.max(0, state.scores[team] + points);
-            document.getElementById(`score-${team}`).innerText = state.scores[team];
-            animateElement(`score-${team}`);
-        }
-
-        // Cartões (Yellow / Red)
-        function addCard(team, color) {
-            state.cards[team][color]++;
-            let id = color === 'yellow' ? `yc-${team}` : `rc-${team}`;
-            document.getElementById(id).innerText = state.cards[team][color];
-            animateElement(id);
-        }
-
-        function animateElement(id) {
-            const el = document.getElementById(id);
-            el.style.transform = 'scale(1)';
-            void el.offsetWidth; // Force Reflow
-            el.style.transform = 'scale(1.2)';
-            setTimeout(() => { el.style.transform = 'scale(1)'; }, 150);
-        }
-
-        // Timer Logic (Count Up to 80 Mins)
-        let timerInterval = null;
-        let elapsedSeconds = 0;
-        let isRunning = false;
-        const timeDisplay = document.getElementById('time-display');
-        const startBtn = document.getElementById('btn-start');
         
-        function updateTimeDisplay() {
-            const m = Math.floor(elapsedSeconds / 60).toString().padStart(2, '0');
-            const s = (elapsedSeconds % 60).toString().padStart(2, '0');
-            timeDisplay.innerText = `${m}:${s}`;
-            
-            // Text color changes when passing 80 minutes (Rugby match limit)
-            if (elapsedSeconds >= 80 * 60) {
-                timeDisplay.style.color = 'var(--team-a)';
+        let state = JSON.parse(localStorage.getItem('rugbyState')) || JSON.parse(JSON.stringify(defaultState));
+
+        function saveState() {
+            localStorage.setItem('rugbyState', JSON.stringify(state));
+            renderUI();
+        }
+
+        // ---------------------------------------------------------
+        // Core Logic
+        // ---------------------------------------------------------
+        function addScore(team, points, actionName) {
+            playWhistle('blip');
+            state.scores[team] = Math.max(0, state.scores[team] + points);
+            if(points > 0) {
+                addLog(`🎯 ${actionName} para a equipe <strong>${state.names[team]}</strong> (+${points})`);
             } else {
-                timeDisplay.style.color = '#fff';
+                addLog(`⚙️ Ponto corrigido para a equipe <strong>${state.names[team]}</strong> (-1)`);
             }
+            saveState();
+        }
+
+        function addCard(team, color, colorName) {
+            playWhistle('blip');
+            state.cards[team][color]++;
+            let icon = color === 'yellow' ? '🟨' : '🟥';
+            addLog(`${icon} Cartão ${colorName} para a equipe <strong>${state.names[team]}</strong>`);
+            saveState();
+        }
+
+        function addLog(message) {
+            const timeStr = formatTime(state.timer);
+            const periodStr = state.period === 1 ? '1ºT' : '2ºT';
+            state.logs.unshift({ time: `${periodStr} - ${timeStr}`, desc: message });
+        }
+
+        function updateName(team, name) {
+            state.names[team] = name;
+            saveState();
+        }
+
+        function updateColor(team, hex) {
+            state.colors[team] = hex;
+            document.documentElement.style.setProperty(`--team-${team}`, hex);
+            saveState();
+        }
+
+        function togglePeriod() {
+            playWhistle('whistle');
+            state.period = state.period === 1 ? 2 : 1;
+            addLog(`⏱️ Início do ${state.period}º Tempo`);
+            saveState();
+        }
+
+        // ---------------------------------------------------------
+        // Timer Logic
+        // ---------------------------------------------------------
+        let timerInterval = null;
+        let isRunning = false;
+        
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
         }
 
         function startTimer() {
+            initAudio(); // Initialize audio context on first user interaction
             if (isRunning) return;
+            playWhistle('whistle');
             isRunning = true;
             timerInterval = setInterval(() => {
-                elapsedSeconds++;
-                updateTimeDisplay();
+                state.timer++;
+                saveState();
             }, 1000);
-            startBtn.style.color = 'var(--team-b)';
+            document.getElementById('btn-start').style.color = '#10b981';
         }
 
         function pauseTimer() {
             if (!isRunning) return;
             clearInterval(timerInterval);
             isRunning = false;
-            startBtn.style.color = '#fff';
+            document.getElementById('btn-start').style.color = '#fff';
+            saveState();
         }
 
         function resetTimer() {
-            if(confirm("Tem certeza que deseja zerar o cronômetro?")) {
+            if(confirm("Deseja voltar o cronômetro para 00:00?")) {
                 pauseTimer();
-                elapsedSeconds = 0;
-                updateTimeDisplay();
+                state.timer = 0;
+                saveState();
             }
         }
-        
-        // Block enter on inputs
-        document.querySelectorAll('.team-name-input').forEach(input => {
-            input.addEventListener('keypress', function(e) {
-                if(e.key === 'Enter') {
-                    e.preventDefault();
-                    this.blur();
-                }
+
+        function resetMatch() {
+            if (confirm("ATENÇÃO: Deseja apagar todo o placar e histórico para iniciar um novo jogo?")) {
+                pauseTimer();
+                state = JSON.parse(JSON.stringify(defaultState));
+                saveState();
+                playWhistle('whistle');
+            }
+        }
+
+        // ---------------------------------------------------------
+        // UI Render
+        // ---------------------------------------------------------
+        function renderUI() {
+            // Scores
+            document.getElementById('score-a').innerText = state.scores.a;
+            document.getElementById('score-b').innerText = state.scores.b;
+            
+            // Cards
+            document.getElementById('yc-a').innerText = state.cards.a.yellow;
+            document.getElementById('rc-a').innerText = state.cards.a.red;
+            document.getElementById('yc-b').innerText = state.cards.b.yellow;
+            document.getElementById('rc-b').innerText = state.cards.b.red;
+            
+            // Names and Colors
+            document.getElementById('name-a').value = state.names.a;
+            document.getElementById('name-b').value = state.names.b;
+            document.getElementById('color-a').value = state.colors.a;
+            document.getElementById('color-b').value = state.colors.b;
+            document.documentElement.style.setProperty('--team-a', state.colors.a);
+            document.documentElement.style.setProperty('--team-b', state.colors.b);
+            
+            // Timer View
+            const timeDisplay = document.getElementById('time-display');
+            timeDisplay.innerText = formatTime(state.timer);
+            const maxLimit = state.period === 1 ? 40 : 80;
+            if (state.timer >= maxLimit * 60) {
+                timeDisplay.style.color = 'var(--team-a)'; // Red when past time
+            } else {
+                timeDisplay.style.color = '#fff';
+            }
+            document.getElementById('btn-period').innerText = state.period === 1 ? '1º Tempo' : '2º Tempo';
+
+            // Logs
+            const logList = document.getElementById('log-list');
+            logList.innerHTML = '';
+            state.logs.forEach(log => {
+                const li = document.createElement('li');
+                li.className = 'log-item';
+                li.innerHTML = `<span class="log-time">${log.time}</span><span class="log-desc">${log.desc}</span>`;
+                logList.appendChild(li);
             });
+        }
+
+        // Export Function
+        function exportSummary() {
+            const timeStr = formatTime(state.timer);
+            const text = `🏉 Resultado da Partida 🏉\n\n` + 
+                         `🏟 ${state.names.a}: ${state.scores.a}\n` +
+                         `🚌 ${state.names.b}: ${state.scores.b}\n\n` +
+                         `⏱️ Tempo: ${timeStr} (${state.period}º Tempo)\n` +
+                         `🟨 Cartões Amarelos: ${state.cards.a.yellow} a ${state.cards.b.yellow}\n` +
+                         `🟥 Cartões Vermelhos: ${state.cards.a.red} a ${state.cards.b.red}\n\n` +
+                         `_Gerado por Placar Pro (Web)_`;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Resumo do jogo copiado para a área de transferência! Pode colar no WhatsApp.");
+            }).catch(err => {
+                alert("Erro ao copiar: " + err);
+            });
+        }
+
+        // Prevent enter on inputs
+        document.querySelectorAll('.team-name-input').forEach(input => {
+            input.addEventListener('keypress', e => { if(e.key === 'Enter') { e.preventDefault(); input.blur(); }});
         });
+
+        // Initialize display
+        renderUI();
     </script>
 </body>
 </html>
